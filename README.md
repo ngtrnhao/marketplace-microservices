@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # Marketplace Microservices Platform
 
 A modern marketplace platform built with microservices architecture.
