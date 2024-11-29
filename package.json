@@ -20,5 +20,8 @@
     "docker"
   ],
   "author": "Your Name",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "marketplace-microservices": "file:"
+  }
 }
