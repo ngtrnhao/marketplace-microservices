@@ -12,4 +12,9 @@ export interface IUser {
   refeshToken?: string;
   createdAt?: Date;
   updatedAt?: Date;
+  //Virtual fileds
+  fullName?: string;
+  isVerified?: boolean;
+  lastLoginFormatted?: string;
+  accountAge?: number;
 }

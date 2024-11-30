@@ -40,6 +40,12 @@ export class User implements IUser {
   @Prop()
   refreshToken?: string;
 
+  @Prop()
+  createdAt?: Date;
+
+  @Prop()
+  updatedAt?: Date;
+
   //Phương thức so sánh mật khẩu
   async comparePassword(password: string): Promise<boolean> {
     return bcrypt.compare(password, this.password);
@@ -69,9 +75,36 @@ UserSchema.pre('save', async function (next) {
 
 //Loại bỏ password và refeshToken khi chuyển đổi sang JSON
 UserSchema.set('toJSON', {
+  virtuals: true,
   transform: function (doc, ret) {
     delete ret.password;
-    delete ret.refeshToken;
+    delete ret.refreshToken;
     return ret;
   },
+});
+
+UserSchema.set('toObject', { virtuals: true });
+
+//Virtual fields
+UserSchema.virtual('fullName').get(function () {
+  return `${this.name}`;
+});
+
+UserSchema.virtual('isVerified').get(function () {
+  return this.email && this.isActive;
+});
+
+UserSchema.virtual('lastLoginFormatted').get(function () {
+  if (!this.lastLogin) return 'Chưa đăng nhập';
+  return new Date(this.lastLogin).toLocaleString('vi-VN', {
+    timeZone: 'Asia/Ho_Chi_Minh',
+  });
+});
+
+UserSchema.virtual('accountAge').get(function () {
+  if (!this.createdAt) return 0;
+  const now = new Date();
+  const created = new Date(this.createdAt);
+  const diffTime = Math.abs(now.getTime() - created.getTime());
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Số ngày
 });
