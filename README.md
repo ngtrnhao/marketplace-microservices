@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # Marketplace Microservices Platform
 
 A modern marketplace platform built with microservices architecture.
@@ -34,7 +34,7 @@ A modern marketplace platform built with microservices architecture.
 ### Installation
 1. Clone the repository
 bash
-git clone https://github.com/[your-username]/marketplace-microservices.git
+git clone https://github.com/ngtrnhao/marketplace-microservices.git
 2. Install dependencies
 bash
 npm run start:dev
