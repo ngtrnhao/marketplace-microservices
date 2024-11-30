@@ -22,7 +22,6 @@ export class AuthService {
       throw new UnauthorizedException('Email already exists');
     }
 
-    // Ensure password is string and hash it
     const hashedPassword = await bcrypt.hash(password.toString(), 10);
 
     const newUser = new this.userModel({
