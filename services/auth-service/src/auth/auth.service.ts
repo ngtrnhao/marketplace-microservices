@@ -107,6 +107,6 @@ export class AuthService {
     if (user.verificationTokenExpires < new Date()) {
       throw new BadRequestException('Token đã hết hạn');
     }
-    return this.usersService.verifyEmail(user._id);
+    return this.usersService.verifyEmail(user._id.toString());
   }
 }

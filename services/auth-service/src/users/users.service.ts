@@ -62,4 +62,20 @@ export class UsersService {
     }
     return user;
   }
+
+  async updateLastLogin(userId: string): Promise<User> {
+    const user = await this.userModel.findByIdAndUpdate(
+      userId,
+      {
+        lastLoginAt: new Date(),
+      },
+      { new: true },
+    );
+
+    if (!user) {
+      throw new NotFoundException('Không tìm thấy người dùng');
+    }
+
+    return user;
+  }
 }
