@@ -14,19 +14,12 @@ export class DatabaseProvider implements MongooseOptionsFactory {
       uri: this.configService.get<string>('MONGODB_URI'),
       retryAttempts: 3,
       retryDelay: 1000,
-      retryWrites: true,
-      w: 'majority',
       minPoolSize: this.configService.get<number>('MONGODB_MIN_POOL_SIZE', 5),
       maxPoolSize: this.configService.get<number>('MONGODB_MAX_POOL_SIZE', 10),
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
-      replicaSet: 'atlas-cluster',
-      readPreference: 'primaryPreferred',
+      serverSelectionTimeoutMS: 10000,
+      connectTimeoutMS: 10000,
       ssl: true,
       autoIndex: true,
-      connectTimeoutMS: 10000,
-      heartbeatFrequencyMS: 10000,
-      maxIdleTimeMS: 45000,
     };
   }
 }

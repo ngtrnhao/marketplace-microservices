@@ -72,7 +72,7 @@ describe('UsersService', () => {
         {
           lastLoginAt: expect.any(Date),
         },
-        { new: true }
+        { new: true },
       );
     });
   });
