@@ -7,6 +7,7 @@ import {
   Get,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -30,5 +31,11 @@ export class AuthController {
   @Get('profile')
   getProfile(@Req() req) {
     return req.user;
+  }
+
+  @Get('verify-email')
+  async verifyEmail(@Query('token') token: string) {
+    await this.authService.verifyEmail(token);
+    return { message: 'Email đã được xác thực thành công' };
   }
 }

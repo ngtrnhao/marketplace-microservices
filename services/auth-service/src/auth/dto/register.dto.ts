@@ -5,6 +5,7 @@ import {
   IsString,
   Matches,
 } from 'class-validator';
+import { IsAllowedDomain } from '../../common/validators/email-domain.validator';
 
 export class RegisterDto {
   @IsString({ message: 'Tên phải là chuỗi ký tự ' })
@@ -13,6 +14,9 @@ export class RegisterDto {
   name: string;
 
   @IsEmail({}, { message: 'Email không hợp lệ' })
+  @IsAllowedDomain(['gmail.com', 'example.com'], {
+    message: 'Chỉ chấp nhận email từ gmail.com hoặc example.com',
+  })
   @IsNotEmpty({ message: 'Email không được để trống' })
   email: string;
 

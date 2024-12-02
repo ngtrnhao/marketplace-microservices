@@ -46,6 +46,15 @@ export class User implements IUser {
   @Prop()
   updatedAt?: Date;
 
+  @Prop({ default: false })
+  isEmailVerified: boolean;
+
+  @Prop()
+  verificationToken: string;
+
+  @Prop({ expires: '24h' })
+  verificationTokenExpires: Date;
+
   //Phương thức so sánh mật khẩu
   async comparePassword(password: string): Promise<boolean> {
     return bcrypt.compare(password, this.password);

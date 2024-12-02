@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -6,36 +10,39 @@ import * as bcrypt from 'bcrypt';
 import { User, UserDocument } from '../users/schemas/user.schema';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { UsersService } from '../users/users.service';
+import { EmailService } from '../email/email.service';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private jwtService: JwtService,
+    private readonly usersService: UsersService,
+    private readonly emailService: EmailService,
   ) {}
 
   async register(registerDto: RegisterDto) {
-    const { email, password } = registerDto;
+    const verificationToken = crypto.randomBytes(32).toString('hex');
 
-    const existingUser = await this.userModel.findOne({ email });
-    if (existingUser) {
-      throw new UnauthorizedException('Email already exists');
-    }
-
-    const hashedPassword = await bcrypt.hash(password.toString(), 10);
-
-    const newUser = new this.userModel({
+    const user = await this.usersService.createUser({
       ...registerDto,
-      password: hashedPassword,
+      isEmailVerified: false,
+      verificationToken,
+      verificationTokenExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
-    const savedUser = await newUser.save();
 
-    const tokens = await this.getTokens(
-      savedUser._id.toString(),
-      savedUser.email,
-      savedUser.role,
+    await this.emailService.sendVerificationEmail(
+      user.email,
+      verificationToken,
     );
-    return tokens;
+
+    return {
+      message:
+        'Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.',
+      userId: user._id,
+    };
   }
 
   async login(loginDto: LoginDto) {
@@ -93,5 +100,13 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  async verifyEmail(token: string) {
+    const user = await this.usersService.findByVerificationToken(token);
+    if (user.verificationTokenExpires < new Date()) {
+      throw new BadRequestException('Token đã hết hạn');
+    }
+    return this.usersService.verifyEmail(user._id);
   }
 }
