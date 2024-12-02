@@ -67,9 +67,13 @@ describe('UsersService', () => {
 
       await service.updateLastLogin(userId);
       // Kiểm tra hàm được gọi với đúng tham số
-      expect(mockUserModel.findByIdAndUpdate).toHaveBeenCalledWith(userId, {
-        lastLogin: expect.any(Date), // Chỉ cần đảm bảo là Date object
-      });
+      expect(mockUserModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        userId,
+        {
+          lastLoginAt: expect.any(Date),
+        },
+        { new: true }
+      );
     });
   });
 });

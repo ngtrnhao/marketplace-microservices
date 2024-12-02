@@ -3,11 +3,13 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest'; // Thư viện để test HTTP requests
 import { AppModule } from './../src/app.module';
 import { ValidationFilter } from '../src/common/filters/validation.filter';
+import { ErrorCodes, ErrorMessages } from '../src/common/constants/error-code';
+import { LoggerService } from '../src/common/services/logger.service';
 
 // Test suite cho AppController (end-to-end testing)
 describe('AppController (e2e)', () => {
   let app: INestApplication; // Biến để lưu instance của ứng dụng
-
+  let logger: LoggerService;
   // Chạy trước mỗi test case
   beforeEach(async () => {
     // Tạo module testing với AppModule
@@ -28,7 +30,7 @@ describe('AppController (e2e)', () => {
     );
 
     // Thêm filter xử lý validation errors
-    app.useGlobalFilters(new ValidationFilter());
+    app.useGlobalFilters(new ValidationFilter(logger));
     // Đặt prefix cho tất cả routes
     app.setGlobalPrefix('api');
 
@@ -71,6 +73,14 @@ describe('AppController (e2e)', () => {
           expect(res.body).toHaveProperty('errors');
           expect(res.body).toHaveProperty('timestamp');
           expect(res.body).toHaveProperty('statusCode', 400);
+          expect(res.body).toHaveProperty(
+            'errorCode',
+            ErrorCodes.VALIDATION_ERROR,
+          );
+          expect(res.body).toHaveProperty(
+            'message',
+            ErrorMessages[ErrorCodes.VALIDATION_ERROR],
+          );
         });
     });
   });

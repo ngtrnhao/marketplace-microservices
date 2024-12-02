@@ -5,6 +5,8 @@ import { getModelToken } from '@nestjs/mongoose';
 import { User } from '../../../src/users/schemas/user.schema';
 import mongoose from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { UsersService } from '../../../src/users/users.service';
+import { EmailService } from '../../../src/email/email.service';
 
 // Mock toàn bộ module bcrypt vì:
 // 1. Tránh thực hiện hash thật trong test
@@ -35,18 +37,29 @@ describe('AuthService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
-        // Mock User Model để không cần database thật
         {
           provide: getModelToken(User.name),
           useValue: {
-            findOne: jest.fn().mockResolvedValue(mockUserDoc), // Mock tìm user luôn thành công
+            findOne: jest.fn().mockResolvedValue(mockUserDoc),
           },
         },
-        // Mock JWT Service để không cần secret key thật
         {
           provide: JwtService,
           useValue: {
-            sign: jest.fn().mockReturnValue('test-token'), // Mock tạo token
+            sign: jest.fn().mockReturnValue('test-token'),
+          },
+        },
+        {
+          provide: UsersService,
+          useValue: {
+            findByEmail: jest.fn().mockResolvedValue(mockUserDoc),
+            updateLastLogin: jest.fn().mockResolvedValue(mockUserDoc),
+          },
+        },
+        {
+          provide: EmailService,
+          useValue: {
+            sendVerificationEmail: jest.fn().mockResolvedValue(true),
           },
         },
       ],

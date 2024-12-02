@@ -1,22 +1,40 @@
 import { ValidationFilter } from '../../../src/common/filters/validation.filter';
 import { BadRequestException } from '@nestjs/common';
-
+import { Test, TestingModule } from '@nestjs/testing';
+import { LoggerService } from '../../../src/common/services/logger.service';
+import {
+  ErrorCodes,
+  ErrorMessages,
+} from '../../../src/common/constants/error-code';
 // Test suite cho ValidationFilter
 describe('ValidationFilter', () => {
   let filter: ValidationFilter; // Instance của filter để test
   let mockResponse: any; // Mock response object
+  let mockRequest: any; // Mock request object
+  let mockLogger: any; // Mock logger object
 
   // Setup trước mỗi test case
-  beforeEach(() => {
-    // Khởi tạo filter mới
-    filter = new ValidationFilter();
-
-    // Tạo mock response với 2 method cần thiết:
-    // - status(): set HTTP status code
-    // - json(): gửi JSON response
+  beforeEach(async () => {
+    mockLogger = {
+      error: jest.fn(),
+    };
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        ValidationFilter,
+        {
+          provide: LoggerService,
+          useValue: mockLogger,
+        },
+      ],
+    }).compile();
+    filter = module.get<ValidationFilter>(ValidationFilter);
     mockResponse = {
-      status: jest.fn().mockReturnThis(), // mockReturnThis() để có thể chain .json()
-      json: jest.fn(), // Mock hàm json để kiểm tra response format
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    mockRequest = {
+      url: '/test',
+      body: {},
     };
   });
 
@@ -29,12 +47,18 @@ describe('ValidationFilter', () => {
     const mockHost = {
       switchToHttp: () => ({
         getResponse: () => mockResponse,
+        getRequest: () => mockRequest,
       }),
     };
 
     // Gọi method catch của filter
     filter.catch(mockException, mockHost as any);
 
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      'Validation failed',
+      expect.any(String),
+      'ValidationFilter',
+    );
     // Kiểm tra response:
     // 1. Status code phải là 400
     expect(mockResponse.status).toHaveBeenCalledWith(400);
@@ -42,7 +66,10 @@ describe('ValidationFilter', () => {
     // 2. Response body phải đúng format
     expect(mockResponse.json).toHaveBeenCalledWith({
       statusCode: 400,
+      errorCode: ErrorCodes.VALIDATION_ERROR,
+      message: ErrorMessages[ErrorCodes.VALIDATION_ERROR],
       timestamp: expect.any(String), // Chỉ cần đảm bảo là string
+      path: '/test',
       errors: { message: 'Email không hợp lệ' },
     });
   });
@@ -71,16 +98,21 @@ describe('ValidationFilter', () => {
     const mockHost = {
       switchToHttp: () => ({
         getResponse: () => mockResponse,
+        getRequest: () => mockRequest,
       }),
     };
 
     // Gọi method catch
     filter.catch(mockException, mockHost as any);
 
+    expect(mockLogger.error).toHaveBeenCalled();
     // Kiểm tra format của response với nhiều lỗi
     expect(mockResponse.json).toHaveBeenCalledWith({
       statusCode: 400,
+      errorCode: ErrorCodes.VALIDATION_ERROR,
+      message: ErrorMessages[ErrorCodes.VALIDATION_ERROR],
       timestamp: expect.any(String),
+      path: '/test',
       errors: {
         // Mỗi field là một mảng chứa các message lỗi
         email: ['Email không hợp lệ'],
