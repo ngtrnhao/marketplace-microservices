@@ -3,17 +3,33 @@ import { INestApplication, ValidationPipe } from '@nestjs/common'; // Types và 
 import * as request from 'supertest'; // Thư viện để test HTTP requests
 import { AppModule } from '../../src/app.module'; // Root module của ứng dụng
 import { ValidationFilter } from '../../src/common/filters/validation.filter';
+import { LoggerService } from '../../src/common/services/logger.service';
 
 // Test suite cho AuthController (end-to-end testing)
 describe('AuthController (e2e)', () => {
   // Biến để lưu instance của ứng dụng NestJS
   let app: INestApplication;
+  let logger: LoggerService;
 
   // Setup trước mỗi test case
   beforeEach(async () => {
+    // Tạo mock logger
+    logger = {
+      error: jest.fn(),
+      warn: jest.fn(),
+      log: jest.fn(),
+      debug: jest.fn(),
+    } as any;
+
     // Tạo module testing với AppModule (toàn bộ ứng dụng)
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule], // Import toàn bộ AppModule để test e2e
+      providers: [
+        {
+          provide: LoggerService,
+          useValue: logger,
+        },
+      ],
     }).compile();
 
     // Khởi tạo ứng dụng NestJS
@@ -22,8 +38,8 @@ describe('AuthController (e2e)', () => {
     // Thêm global validation pipe để validate DTOs
     app.useGlobalPipes(new ValidationPipe());
 
-    // Thêm filter để xử lý validation errors
-    app.useGlobalFilters(new ValidationFilter());
+    // Truyền logger vào ValidationFilter
+    app.useGlobalFilters(new ValidationFilter(logger));
 
     // Khởi động ứng dụng
     await app.init();

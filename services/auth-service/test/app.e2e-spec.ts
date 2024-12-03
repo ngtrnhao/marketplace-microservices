@@ -12,9 +12,23 @@ describe('AppController (e2e)', () => {
   let logger: LoggerService;
   // Chạy trước mỗi test case
   beforeEach(async () => {
+    // Tạo mock logger
+    logger = {
+      error: jest.fn(),
+      warn: jest.fn(),
+      log: jest.fn(),
+      debug: jest.fn(),
+    } as any;
+
     // Tạo module testing với AppModule
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
+      providers: [
+        {
+          provide: LoggerService,
+          useValue: logger,
+        },
+      ],
     }).compile();
 
     // Khởi tạo ứng dụng
