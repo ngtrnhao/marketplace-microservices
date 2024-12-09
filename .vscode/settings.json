@@ -1,0 +1,59 @@
+{
+    // Format & Linting
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    },
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+    // TypeScript/JavaScript specific
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true,
+      "editor.tabSize": 2
+    },
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true,
+      "editor.tabSize": 2
+    },
+
+    // JSON specific
+    "[json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true,
+      "editor.tabSize": 2
+    },
+    "[jsonc]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true,
+      "editor.tabSize": 2
+    },
+
+    // File encoding and line endings
+    "files.eol": "\n",
+    "files.encoding": "utf8",
+
+    // ESLint
+    "eslint.validate": [
+      "javascript",
+      "javascriptreact",
+      "typescript",
+      "typescriptreact"
+    ],
+
+    // Other helpful settings
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+
+    // NestJS specific
+    "material-icon-theme.activeIconPack": "nest",
+
+    // Terminal
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+
+    // Git
+    "git.enableSmartCommit": true,
+    "git.autofetch": true
+  }

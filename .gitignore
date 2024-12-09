@@ -1,49 +1,12 @@
-<<<<<<< HEAD
-# Dependencies
-node_modules/
-dist/
-
-# Environment
-.env
-.env.*
-!.env.example
-=======
 # compiled output
 /dist
 /node_modules
 /build
->>>>>>> master
 
 # Logs
 logs
 *.log
 npm-debug.log*
-<<<<<<< HEAD
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Build
-build/
-dist/
-
-# Docker
-docker-compose.override.yml
-
-# Testing
-coverage/
-
-# Temp files
-*.tmp
-*.temp
-=======
 pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -91,4 +54,3 @@ pids
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
->>>>>>> master

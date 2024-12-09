@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
+    networks:
+      - marketplace-network
+
+networks:
+  marketplace-network:
+    driver: bridge
