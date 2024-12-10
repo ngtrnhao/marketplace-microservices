@@ -13,6 +13,8 @@ import { LoginDto } from './dto/login.dto';
 import { UsersService } from '../users/users.service';
 import { EmailService } from '../email/email.service';
 import * as crypto from 'crypto';
+import { SessionService } from 'test/unit/auth/session/session.service';
+import { LoginAttemptsService } from 'test/unit/auth/login-attempts/login-attempts.service';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +23,8 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly usersService: UsersService,
     private readonly emailService: EmailService,
+    private readonly sessionService: SessionService,
+    private readonly loginAttemptsService: LoginAttemptsService,
   ) {}
 
   async register(registerDto: RegisterDto) {
@@ -46,28 +50,51 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto) {
-    const { email, password } = loginDto;
-
-    const user = await this.userModel.findOne({ email });
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+    // Kiểm tra tài khoản có bị khóa không
+    if (await this.loginAttemptsService.isLocked(loginDto.email)) {
+      throw new UnauthorizedException('Tài khoản tạm thời bị khóa');
     }
 
-    // Ensure password is string for comparison
-    const isPasswordValid = await bcrypt.compare(
-      password.toString(),
-      user.password,
-    );
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    try {
+      const { email, password } = loginDto;
+      const user = await this.userModel.findOne({ email });
 
-    const tokens = await this.getTokens(
-      user._id.toString(),
-      user.email,
-      user.role,
-    );
-    return tokens;
+      if (!user) {
+        await this.loginAttemptsService.trackAttempt(email, false);
+        throw new UnauthorizedException('Email hoặc mật khẩu không đúng');
+      }
+
+      const isPasswordValid = await bcrypt.compare(
+        password.toString(),
+        user.password,
+      );
+      if (!isPasswordValid) {
+        await this.loginAttemptsService.trackAttempt(email, false);
+        throw new UnauthorizedException('Email hoặc mật khẩu không đúng');
+      }
+
+      // Login thành công
+      await this.loginAttemptsService.trackAttempt(email, true);
+
+      // Tạo session
+      const session = await this.sessionService.createSession(
+        user._id.toString(),
+      );
+
+      // Tạo tokens
+      const tokens = await this.getTokens(
+        user._id.toString(),
+        user.email,
+        user.role,
+      );
+
+      return {
+        ...tokens,
+        sessionId: session.id,
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 
   private async getTokens(userId: string, email: string, role: string) {
