@@ -1,11 +1,18 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { ValidationFilter } from './common/filters/validation.filter';
+import { SwaggerModule } from '@nestjs/swagger';
+import { swaggerConfig } from './config/swagger.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const logger = new Logger('Bootstrap');
 
+  // Cấu hình CORS
+  app.enableCors();
+
+  // Cấu hình Global Pipes
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -15,8 +22,21 @@ async function bootstrap() {
     }),
   );
 
+  // Cấu hình Global Prefix
   app.setGlobalPrefix('api');
 
-  await app.listen(process.env.PORT || 3001);
+  // Cấu hình Swagger
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api/docs', app, document);
+
+  // Khởi động server
+  const port = process.env.PORT || 3001;
+  await app.listen(port);
+
+  logger.log(`Application is running on: http://localhost:${port}`);
+  logger.log(
+    `Swagger documentation is available at: http://localhost:${port}/api/docs`,
+  );
 }
+
 bootstrap();
