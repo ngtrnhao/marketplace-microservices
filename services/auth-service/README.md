@@ -2,45 +2,46 @@
 
 A modern marketplace platform built with microservices architecture.
 
-## Project Structure
+# Project Structure
 
+```bash
 marketplace-microservices/
 ├── services/
-│ ├── auth-service/ # Authentication & User Management
-│ │ ├── src/
-│ │ │ ├── auth/
-│ │ │ ├── users/
-│ │ │ └── common/
-│ │ ├── test/
-│ │ │ ├── e2e/
-│ │ │ └── unit/
-│ │ ├── Dockerfile
-│ │ └── README.md
-│ ├── product-service/ # Product Management
-│ │ ├── src/
-│ │ │ ├── products/
-│ │ │ └── categories/
-│ │ ├── test/
-│ │ └── README.md
-│ └── order-service/ # Order Processing
-│ ├── src/
-│ │ ├── orders/
-│ │ └── payments/
-│ ├── test/
-│ └── README.md
-├── api-gateway/ # API Gateway
-│ ├── src/
-│ │ ├── routes/
-│ │ └── middleware/
-│ └── README.md
-├── docker/ # Docker Configurations
-│ ├── docker-compose.yml
-│ └── Dockerfile.
-└── k8s/ # Kubernetes Configurations
-├── deployments/
-├── services/
-└── configmaps/
-
+│   ├── auth-service/           # Authentication & User Management
+│   │   ├── src/
+│   │   │   ├── auth/
+│   │   │   ├── users/
+│   │   │   └── common/
+│   │   ├── test/
+│   │   │   ├── e2e/
+│   │   │   └── unit/
+│   │   ├── Dockerfile
+│   │   └── README.md
+│   ├── product-service/        # Product Management 
+│   │   ├── src/
+│   │   │   ├── products/
+│   │   │   └── categories/
+│   │   ├── test/
+│   │   └── README.md
+│   └── order-service/          # Order Processing
+│       ├── src/
+│       │   ├── orders/
+│       │   └── payments/
+│       ├── test/
+│       └── README.md
+├── api-gateway/                # API Gateway
+│   ├── src/
+│   │   ├── routes/
+│   │   └── middleware/
+│   └── README.md
+├── docker/                     # Docker Configurations
+│   ├── docker-compose.yml
+│   └── Dockerfile.*
+└── k8s/                       # Kubernetes Configurations
+    ├── deployments/
+    ├── services/
+    └── configmaps/
+```
 ## Services
 
 ### Core Services
