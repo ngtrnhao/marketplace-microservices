@@ -162,13 +162,13 @@ bash
 <body>
 <footer>
 ### Types
-- `feat`: Tính năng mới
-- `fix`: Sửa lỗi
-- `docs`: Thay đổi tài liệu
-- `style`: Format code, thiếu dấu chấm phẩy, etc
-- `refactor`: Tái cấu trúc code
-- `test`: Thêm test hoặc sửa test
-- `chore`: Cập nhật công cụ build, cấu hình CI, etc
+-`feat`: Tính năng mới
+-`fix`: Sửa lỗi
+-`docs`: Thay đổi tài liệu
+-`style`: Format code, thiếu dấu chấm phẩy, etc
+-`refactor`: Tái cấu trúc code
+-`test`: Thêm test hoặc sửa test
+-`chore`: Cập nhật công cụ build, cấu hình CI, etc
 
 ### Scope
 - `auth`: Authentication/Authorization
