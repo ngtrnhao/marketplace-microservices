@@ -154,3 +154,84 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
 >>>>>>> master
+# GitHub Rules
+
+## Commit Message Format
+bash
+<type>(<scope>): <subject>
+<body>
+<footer>
+### Types
+- `feat`: Tính năng mới
+- `fix`: Sửa lỗi
+- `docs`: Thay đổi tài liệu
+- `style`: Format code, thiếu dấu chấm phẩy, etc
+- `refactor`: Tái cấu trúc code
+- `test`: Thêm test hoặc sửa test
+- `chore`: Cập nhật công cụ build, cấu hình CI, etc
+
+### Scope
+- `auth`: Authentication/Authorization
+- `user`: User management
+- `security`: Security features
+- `api`: API endpoints
+- `db`: Database changes
+- `config`: Configuration changes
+
+### Subject
+- Không quá 50 ký tự
+- Bắt đầu bằng động từ (add, update, change, etc)
+- Không viết hoa chữ đầu
+- Không dấu chấm ở cuối
+
+### Body
+- Giải thích chi tiết những thay đổi
+- Mỗi dòng không quá 72 ký tự
+- Giải thích lý do và so sánh với cách làm cũ
+
+### Footer
+- Đánh dấu breaking changes
+- Tham chiếu đến issues và pull requests
+- Format: `BREAKING CHANGE: <description>`
+
+## Ví dụ:
+bash
+feat(auth): implement IP blocking mechanism
+Add IP blocking service
+Add failed login attempts tracking
+Add suspicious activity detection
+Configure blocking duration and thresholds
+BREAKING CHANGE: New security features require database schema updates
+Closes #123
+## Branch Naming
+
+- Feature: `feature/auth-ip-blocking`
+- Bugfix: `fix/login-validation`
+- Hotfix: `hotfix/security-vulnerability`
+- Release: `release/v1.2.0`
+
+## Pull Request Rules
+
+1. Mô tả chi tiết các thay đổi
+2. Liên kết với issues liên quan
+3. Cập nhật documentation nếu cần
+4. Đảm bảo CI/CD pass
+5. Code review bởi ít nhất 1 người
+6. Không conflicts với main branch
+
+## Code Review Guidelines
+
+1. Kiểm tra security vulnerabilities
+2. Đảm bảo code coverage > 80%
+3. Tuân thủ coding standards
+4. Kiểm tra performance impacts
+5. Verify error handling
+6. Review test cases
+
+## Security Guidelines
+
+1. Không commit sensitive data
+2. Sử dụng environment variables
+3. Regular security audits
+4. Dependency version control
+5. Access control verification
