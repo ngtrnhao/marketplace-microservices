@@ -5,7 +5,7 @@ export interface IAuthResponse {
   accessToken: string;
 }
 
-export interface IResgisterPaykload {
+export interface IResgisterPayload {
   name: string;
   email: string;
   password: string;

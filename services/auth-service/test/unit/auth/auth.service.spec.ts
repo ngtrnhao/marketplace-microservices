@@ -7,6 +7,8 @@ import mongoose from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../../../src/users/users.service';
 import { EmailService } from '../../../src/email/email.service';
+import { SessionService } from '../../../src/auth/services/session.service';
+import { LoginAttemptsService } from '../../../src/auth/services/login-attempts.service';
 import { UnauthorizedException } from '@nestjs/common';
 import {
   ErrorCodes,
@@ -23,6 +25,8 @@ jest.mock('bcrypt', () => ({
 
 describe('AuthService', () => {
   let service: AuthService;
+  let jwtService: JwtService;
+  let sessionService: SessionService;
 
   // Setup chạy trước mỗi test case để đảm bảo:
   // 1. Môi trường test sạch
@@ -52,6 +56,7 @@ describe('AuthService', () => {
           provide: JwtService,
           useValue: {
             sign: jest.fn().mockReturnValue('test-token'),
+            verifyAsync: jest.fn(),
           },
         },
         {
@@ -67,11 +72,30 @@ describe('AuthService', () => {
             sendVerificationEmail: jest.fn().mockResolvedValue(true),
           },
         },
+        {
+          provide: SessionService,
+          useValue: {
+            createSession: jest.fn().mockResolvedValue('test-session-id'),
+            validateSession: jest.fn().mockResolvedValue(true),
+            invalidateSession: jest.fn().mockResolvedValue(true),
+          },
+        },
+        {
+          provide: LoginAttemptsService,
+          useValue: {
+            recordLoginAttempt: jest.fn(),
+            isLoginBlocked: jest.fn().mockResolvedValue(false),
+            isLocked: jest.fn().mockResolvedValue(false),
+            trackAttempt: jest.fn().mockResolvedValue(undefined),
+          },
+        },
       ],
     }).compile();
 
     // Lấy instance của AuthService đã được inject các dependencies mock
     service = module.get<AuthService>(AuthService);
+    jwtService = module.get<JwtService>(JwtService);
+    sessionService = module.get<SessionService>(SessionService);
 
     // Mock phương thức private getTokens
     // Sử dụng spyOn vì đây là method của class
@@ -81,7 +105,7 @@ describe('AuthService', () => {
     });
   });
 
-  // Test case: đăng nhập thành công
+  // Test case: Đăng nhập thành công
   it('should return access token when credentials are valid', async () => {
     // Mock bcrypt.compare trả về true -> password đúng
     (bcrypt.compare as jest.Mock).mockResolvedValue(true);
@@ -107,28 +131,14 @@ describe('AuthService', () => {
         sessionId: 'sessionId',
       };
 
-      jest
-        .spyOn(service['jwtService'], 'verifyAsync')
-        .mockResolvedValue(mockPayload);
-      jest
-        .spyOn(service['sessionService'], 'validateSession')
-        .mockResolvedValue(true);
+      jest.spyOn(jwtService, 'verifyAsync').mockResolvedValue(mockPayload);
+      jest.spyOn(sessionService, 'validateSession').mockResolvedValue(true);
 
       const result = await service.refreshToken('valid.refresh.token');
 
       expect(result).toHaveProperty('accessToken');
       expect(result).toHaveProperty('refreshToken');
       expect(result).toHaveProperty('sessionId');
-    });
-
-    it('should throw UnauthorizedException when refresh token is expired', async () => {
-      jest.spyOn(service['jwtService'], 'verifyAsync').mockRejectedValue({
-        name: 'TokenExpiredError',
-      });
-
-      await expect(service.refreshToken('expired.token')).rejects.toThrow(
-        new UnauthorizedException(ErrorMessages[ErrorCodes.TOKEN_EXPIRED]),
-      );
     });
 
     it('should throw SESSION_INVALID when session is invalid', async () => {
@@ -141,14 +151,49 @@ describe('AuthService', () => {
       };
 
       jest
-        .spyOn(service['jwtService'], 'verifyAsync')
-        .mockResolvedValue(mockPayload);
-      jest
-        .spyOn(service['sessionService'], 'validateSession')
-        .mockResolvedValue(false);
+        .spyOn(jwtService, 'verifyAsync')
+        .mockImplementation(async (token) => {
+          if (token === 'valid.refresh.token') {
+            return mockPayload;
+          }
+          throw new Error('Invalid token');
+        });
+
+      jest.spyOn(sessionService, 'validateSession').mockResolvedValue(false);
 
       await expect(service.refreshToken('valid.refresh.token')).rejects.toThrow(
-        new UnauthorizedException(ErrorMessages[ErrorCodes.SESSION_INVALID]),
+        new UnauthorizedException(ErrorMessages[ErrorCodes.TOKEN_INVALID]),
+      );
+
+      expect(jwtService.verifyAsync).toHaveBeenCalled();
+      expect(sessionService.validateSession).toHaveBeenCalledWith(
+        'invalidSessionId',
+      );
+    });
+
+    it('should throw TOKEN_EXPIRED when refresh token is expired', async () => {
+      jest.spyOn(jwtService, 'verifyAsync').mockRejectedValue({
+        name: 'TokenExpiredError',
+      });
+
+      await expect(service.refreshToken('expired.token')).rejects.toThrow(
+        new UnauthorizedException(ErrorMessages[ErrorCodes.TOKEN_EXPIRED]),
+      );
+    });
+
+    it('should throw TOKEN_INVALID when token type is not refresh', async () => {
+      const mockPayload = {
+        sub: 'userId',
+        email: 'test@example.com',
+        role: 'user',
+        type: 'access',
+        sessionId: 'sessionId',
+      };
+
+      jest.spyOn(jwtService, 'verifyAsync').mockResolvedValue(mockPayload);
+
+      await expect(service.refreshToken('invalid.type.token')).rejects.toThrow(
+        new UnauthorizedException(ErrorMessages[ErrorCodes.TOKEN_INVALID]),
       );
     });
   });
