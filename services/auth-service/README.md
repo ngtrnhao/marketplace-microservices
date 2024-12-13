@@ -38,14 +38,26 @@ git clone https://github.com/ngtrnhao/marketplace-microservices.git
 2. Install dependencies
 bash
 npm run start:dev
+tree
 marketplace-microservices/
 ├── services/
-│   ├── auth-service/        # Authentication & User Management
-│   ├── product-service/     # Product Management
-│   └── order-service/       # Order Processing
-├── api-gateway/             # API Gateway
-├── docker/                  # Docker Configurations
-└── k8s/                     # Kubernetes Configurations
+│ ├── auth-service/ # Authentication & User Management
+│ │ ├── src/
+│ │ │ ├── auth/
+│ │ │ ├── users/
+│ │ │ └── common/
+│ │ ├── test/
+│ │ │ ├── e2e/
+│ │ │ └── unit/
+│ │ ├── Dockerfile
+│ │ └── README.md
+│ ├── product-service/ # Product Management
+│ └── order-service/ # Order Processing
+├── api-gateway/ # API Gateway
+├── docker/ # Docker Configurations
+│ ├── docker-compose.yml
+│ └── Dockerfile.
+└── k8s/ # Kubernetes Configurations
 
 ## Contributing
 [Contributing guidelines]
