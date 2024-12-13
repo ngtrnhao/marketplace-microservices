@@ -40,6 +40,7 @@ marketplace-microservices/
 ├── deployments/
 ├── services/
 └── configmaps/
+
 ## Services
 
 ### Core Services
