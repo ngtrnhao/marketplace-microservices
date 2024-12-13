@@ -1,44 +1,9 @@
-
 # Marketplace Microservices Platform
 
 A modern marketplace platform built with microservices architecture.
 
-## Services
+## Project Structure
 
-### Core Services
-- Auth Service (Port: 3001)
-- Product Service (Port: 3002)
-- Order Service (Port: 3003)
-
-### Infrastructure
-- API Gateway (Port: 4000)
-- MongoDB
-- Redis
-
-## Tech Stack
-- NestJS
-- MongoDB
-- Docker
-- Kubernetes
-- Redis
-- TypeScript
-
-## Getting Started
-
-### Prerequisites
-- Node.js 18+
-- Docker
-- Docker Compose
-- MongoDB
-
-### Installation
-1. Clone the repository
-bash
-git clone https://github.com/ngtrnhao/marketplace-microservices.git
-2. Install dependencies
-bash
-npm run start:dev
-tree
 marketplace-microservices/
 ├── services/
 │ ├── auth-service/ # Authentication & User Management
@@ -52,19 +17,98 @@ marketplace-microservices/
 │ │ ├── Dockerfile
 │ │ └── README.md
 │ ├── product-service/ # Product Management
+│ │ ├── src/
+│ │ │ ├── products/
+│ │ │ └── categories/
+│ │ ├── test/
+│ │ └── README.md
 │ └── order-service/ # Order Processing
+│ ├── src/
+│ │ ├── orders/
+│ │ └── payments/
+│ ├── test/
+│ └── README.md
 ├── api-gateway/ # API Gateway
+│ ├── src/
+│ │ ├── routes/
+│ │ └── middleware/
+│ └── README.md
 ├── docker/ # Docker Configurations
 │ ├── docker-compose.yml
 │ └── Dockerfile.
 └── k8s/ # Kubernetes Configurations
+├── deployments/
+├── services/
+└── configmaps/
+## Services
+
+### Core Services
+
+- Auth Service (Port: 3001)
+- Product Service (Port: 3002)
+- Order Service (Port: 3003)
+
+### Infrastructure
+
+- API Gateway (Port: 4000)
+- MongoDB
+- Redis
+
+## Tech Stack
+
+- NestJS
+- MongoDB
+- Docker
+- Kubernetes
+- Redis
+- TypeScript
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- Docker
+- Docker Compose
+- MongoDB
+
+### Installation
+
+1. Clone the repository
+   bash
+   git clone https://github.com/ngtrnhao/marketplace-microservices.git
+2. Install dependencies
+   bash
+   npm run start:dev
+   tree
+   marketplace-microservices/
+   ├── services/
+   │ ├── auth-service/ # Authentication & User Management
+   │ │ ├── src/
+   │ │ │ ├── auth/
+   │ │ │ ├── users/
+   │ │ │ └── common/
+   │ │ ├── test/
+   │ │ │ ├── e2e/
+   │ │ │ └── unit/
+   │ │ ├── Dockerfile
+   │ │ └── README.md
+   │ ├── product-service/ # Product Management
+   │ └── order-service/ # Order Processing
+   ├── api-gateway/ # API Gateway
+   ├── docker/ # Docker Configurations
+   │ ├── docker-compose.yml
+   │ └── Dockerfile.
+   └── k8s/ # Kubernetes Configurations
 
 ## Contributing
+
 [Contributing guidelines]
 
 ## License
-This project is licensed under the MIT License - see the LICENSE file for details
-=======
+
+# This project is licensed under the MIT License - see the LICENSE file for details
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
@@ -164,19 +208,23 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
->>>>>>> master
+
+> > > > > > > master
+
 # GitHub Rules
 
 ## Commit Message Format
+
 bash
 <type>(<scope>): <subject>
+
 <body>
 <footer>
 
-
 ### Types
+
 - `feat`: Tính năng mới
-- `fix`: Sửa lỗi  
+- `fix`: Sửa lỗi
 - `docs`: Thay đổi tài liệu
 - `style`: Format code, thiếu dấu chấm phẩy, etc
 - `refactor`: Tái cấu trúc code
@@ -184,14 +232,16 @@ bash
 - `chore`: Cập nhật công cụ build, cấu hình CI, etc
 
 ### Scope
+
 - `auth`: Authentication/Authorization
-- `user`: User management 
+- `user`: User management
 - `security`: Security features
 - `api`: API endpoints
 - `db`: Database changes
 - `config`: Configuration changes
 
 ### Scope
+
 - `auth`: Authentication/Authorization
 - `user`: User management
 - `security`: Security features
@@ -200,22 +250,26 @@ bash
 - `config`: Configuration changes
 
 ### Subject
+
 - Không quá 50 ký tự
 - Bắt đầu bằng động từ (add, update, change, etc)
 - Không viết hoa chữ đầu
 - Không dấu chấm ở cuối
 
 ### Body
+
 - Giải thích chi tiết những thay đổi
 - Mỗi dòng không quá 72 ký tự
 - Giải thích lý do và so sánh với cách làm cũ
 
 ### Footer
+
 - Đánh dấu breaking changes
 - Tham chiếu đến issues và pull requests
 - Format: `BREAKING CHANGE: <description>`
 
 ## Ví dụ:
+
 bash
 feat(auth): implement IP blocking mechanism
 Add IP blocking service
@@ -224,6 +278,7 @@ Add suspicious activity detection
 Configure blocking duration and thresholds
 BREAKING CHANGE: New security features require database schema updates
 Closes #123
+
 ## Branch Naming
 
 - Feature: `feature/auth-ip-blocking`
