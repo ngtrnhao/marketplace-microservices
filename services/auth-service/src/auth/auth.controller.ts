@@ -15,6 +15,7 @@ import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthResponseDto } from './dto/auth-response.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -64,5 +65,21 @@ export class AuthController {
   async verifyEmail(@Query('token') token: string) {
     await this.authService.verifyEmail(token);
     return { message: 'Email đã được xác thực thành công' };
+  }
+
+  @ApiOperation({ summary: 'Làm mới access token' })
+  @ApiResponse({
+    status: 200,
+    description: 'Token được làm mới thành công',
+    type: AuthResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Refresh token không hợp lệ hoặc hết hạn',
+  })
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
+    return this.authService.refreshToken(refreshTokenDto.refreshToken);
   }
 }

@@ -7,6 +7,11 @@ import mongoose from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../../../src/users/users.service';
 import { EmailService } from '../../../src/email/email.service';
+import { UnauthorizedException } from '@nestjs/common';
+import {
+  ErrorCodes,
+  ErrorMessages,
+} from '../../../src/common/constants/error-code';
 
 // Mock toàn bộ module bcrypt vì:
 // 1. Tránh thực hiện hash thật trong test
@@ -90,6 +95,62 @@ describe('AuthService', () => {
     // Kiểm tra kết quả trả về có đúng format
     expect(result.accessToken).toBe('test-access-token');
     expect(result.refreshToken).toBe('test-refresh-token');
+  });
+
+  describe('refreshToken', () => {
+    it('should return new tokens when refresh token is valid', async () => {
+      const mockPayload = {
+        sub: 'userId',
+        email: 'test@example.com',
+        role: 'user',
+        type: 'refresh',
+        sessionId: 'sessionId',
+      };
+
+      jest
+        .spyOn(service['jwtService'], 'verifyAsync')
+        .mockResolvedValue(mockPayload);
+      jest
+        .spyOn(service['sessionService'], 'validateSession')
+        .mockResolvedValue(true);
+
+      const result = await service.refreshToken('valid.refresh.token');
+
+      expect(result).toHaveProperty('accessToken');
+      expect(result).toHaveProperty('refreshToken');
+      expect(result).toHaveProperty('sessionId');
+    });
+
+    it('should throw UnauthorizedException when refresh token is expired', async () => {
+      jest.spyOn(service['jwtService'], 'verifyAsync').mockRejectedValue({
+        name: 'TokenExpiredError',
+      });
+
+      await expect(service.refreshToken('expired.token')).rejects.toThrow(
+        new UnauthorizedException(ErrorMessages[ErrorCodes.TOKEN_EXPIRED]),
+      );
+    });
+
+    it('should throw SESSION_INVALID when session is invalid', async () => {
+      const mockPayload = {
+        sub: 'userId',
+        email: 'test@example.com',
+        role: 'user',
+        type: 'refresh',
+        sessionId: 'invalidSessionId',
+      };
+
+      jest
+        .spyOn(service['jwtService'], 'verifyAsync')
+        .mockResolvedValue(mockPayload);
+      jest
+        .spyOn(service['sessionService'], 'validateSession')
+        .mockResolvedValue(false);
+
+      await expect(service.refreshToken('valid.refresh.token')).rejects.toThrow(
+        new UnauthorizedException(ErrorMessages[ErrorCodes.SESSION_INVALID]),
+      );
+    });
   });
 
   // Dọn dẹp sau mỗi test

@@ -15,6 +15,9 @@ import { EmailService } from '../email/email.service';
 import * as crypto from 'crypto';
 import { SessionService } from 'test/unit/auth/session/session.service';
 import { LoginAttemptsService } from 'test/unit/auth/login-attempts/login-attempts.service';
+import { TokenPayload } from './interfaces/token-payload.interface';
+import { ErrorCodes, ErrorMessages } from 'src/common/constants/error-code';
+import * as ms from 'ms';
 
 @Injectable()
 export class AuthService {
@@ -86,6 +89,7 @@ export class AuthService {
         user._id.toString(),
         user.email,
         user.role,
+        session.id,
       );
 
       return {
@@ -97,17 +101,27 @@ export class AuthService {
     }
   }
 
-  private async getTokens(userId: string, email: string, role: string) {
+  private async getTokens(
+    userId: string,
+    email: string,
+    role: string,
+    sessionId?: string,
+  ) {
+    const accessTokenExpires = '15m';
+    const refreshTokenExpires = '7d';
+
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
           sub: userId,
           email,
           role,
-        },
+          type: 'access',
+          sessionId,
+        } as TokenPayload,
         {
           secret: process.env.JWT_SECRET,
-          expiresIn: '15m',
+          expiresIn: accessTokenExpires,
         },
       ),
       this.jwtService.signAsync(
@@ -115,10 +129,12 @@ export class AuthService {
           sub: userId,
           email,
           role,
-        },
+          type: 'refresh',
+          sessionId,
+        } as TokenPayload,
         {
           secret: process.env.JWT_REFRESH_SECRET,
-          expiresIn: '7d',
+          expiresIn: refreshTokenExpires,
         },
       ),
     ]);
@@ -126,6 +142,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
+      expiresIn: ms(accessTokenExpires) / 1000, // Convert to seconds
     };
   }
 
@@ -135,5 +152,65 @@ export class AuthService {
       throw new BadRequestException('Token đã hết hạn');
     }
     return this.usersService.verifyEmail(user._id.toString());
+  }
+
+  async verifyToken(
+    token: string,
+    isRefreshToken = false,
+  ): Promise<TokenPayload> {
+    try {
+      const secret = isRefreshToken
+        ? process.env.JWT_REFRESH_SECRET
+        : process.env.JWT_SECRET;
+      return await this.jwtService.verifyAsync(token, { secret });
+    } catch {
+      throw new UnauthorizedException('Token không hợp lệ');
+    }
+  }
+
+  async refreshToken(refreshToken: string) {
+    try {
+      const payload = await this.jwtService.verifyAsync<TokenPayload>(
+        refreshToken,
+        {
+          secret: process.env.JWT_REFRESH_SECRET,
+        },
+      );
+
+      if (payload.type !== 'refresh') {
+        throw new UnauthorizedException('Token không hợp lệ');
+      }
+
+      // Validate session
+      if (payload.sessionId) {
+        const isValidSession = await this.sessionService.validateSession(
+          payload.sessionId,
+        );
+
+        if (!isValidSession) {
+          throw new UnauthorizedException('Phiên đăng nhập không hợp lệ');
+        }
+      }
+
+      // Generate new tokens
+      const tokens = await this.getTokens(
+        payload.sub,
+        payload.email,
+        payload.role,
+        payload.sessionId,
+      );
+
+      return {
+        ...tokens,
+        sessionId: payload.sessionId,
+      };
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        throw new UnauthorizedException(
+          ErrorMessages[ErrorCodes.TOKEN_EXPIRED],
+        );
+      }
+      throw new UnauthorizedException(ErrorMessages[ErrorCodes.TOKEN_INVALID]);
+    }
   }
 }

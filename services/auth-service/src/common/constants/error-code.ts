@@ -14,6 +14,11 @@ export enum ErrorCodes {
 
   //Server errors
   INTERNAL_SERVER_ERROR = 'SRV001',
+
+  // Thêm mã lỗi cho refresh token
+  REFRESH_TOKEN_INVALID = 'AUTH005',
+  REFRESH_TOKEN_EXPIRED = 'AUTH006',
+  SESSION_INVALID = 'AUTH007',
 }
 
 export const ErrorMessages = {
@@ -25,4 +30,7 @@ export const ErrorMessages = {
   [ErrorCodes.EMAIL_ALREADY_EXISTS]: 'Email đã tồn tại',
   [ErrorCodes.VALIDATION_ERROR]: 'Dữ liệu không hợp lệ',
   [ErrorCodes.INTERNAL_SERVER_ERROR]: 'Lỗi hệ thống',
+  [ErrorCodes.REFRESH_TOKEN_INVALID]: 'Refresh token không hợp lệ',
+  [ErrorCodes.REFRESH_TOKEN_EXPIRED]: 'Refresh token đã hết hạn',
+  [ErrorCodes.SESSION_INVALID]: 'Phiên đăng nhập không hợp lệ',
 };

@@ -77,19 +77,56 @@ describe('AuthController (e2e)', () => {
   // Test suite cho endpoint đăng nhập
   describe('POST /auth/login', () => {
     // Test case: đăng nhập thành công
-    it('should login successfully', () => {
+    it('should return tokens and session id on successful login', () => {
       return request(app.getHttpServer())
         .post('/auth/login')
         .send({
-          // Gửi credentials
           email: 'test@example.com',
           password: 'Password123!',
         })
-        .expect(200) // Kiểm tra status code là 200 (OK)
+        .expect(200)
         .expect((res) => {
-          // Kiểm tra response có chứa access_token
-          expect(res.body).toHaveProperty('access_token');
+          expect(res.body).toHaveProperty('accessToken');
+          expect(res.body).toHaveProperty('refreshToken');
+          expect(res.body).toHaveProperty('sessionId');
         });
+    });
+
+    // Test case: đăng nhập thất bại do dữ liệu không hợp lệ
+    it('should fail with invalid credentials', () => {
+      return request(app.getHttpServer())
+        .post('/auth/login')
+        .send({
+          email: 'test@example.com',
+          password: 'wrongpassword',
+        })
+        .expect(401);
+    });
+  });
+
+  // Test suite cho endpoint refresh token
+  describe('POST /auth/refresh', () => {
+    it('should refresh tokens successfully', () => {
+      return request(app.getHttpServer())
+        .post('/auth/refresh')
+        .send({
+          refreshToken: 'valid.refresh.token',
+        })
+        .expect(200)
+        .expect((res) => {
+          expect(res.body).toHaveProperty('accessToken');
+          expect(res.body).toHaveProperty('refreshToken');
+          expect(res.body).toHaveProperty('sessionId');
+        });
+    });
+
+    it('should fail with invalid refresh token', () => {
+      return request(app.getHttpServer())
+        .post('/auth/refresh')
+        .send({
+          refreshToken: 'invalid.token',
+        })
+        .expect(401);
     });
   });
 
