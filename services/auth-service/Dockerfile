@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Cài đặt các dependencies cần thiết cho build
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Sao chép toàn bộ mã nguồn vào container
 COPY . .
@@ -26,7 +26,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Cài đặt chỉ các dependencies cần thiết cho production
-RUN npm install --only=production
+RUN npm install --only=production --legacy-peer-deps
 
 # Sao chép mã nguồn đã build từ stage trước
 COPY --from=builder /usr/src/app/dist ./dist

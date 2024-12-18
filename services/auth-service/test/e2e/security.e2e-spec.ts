@@ -18,6 +18,12 @@ describe('Security Features (e2e)', () => {
 
   describe('Rate Limiting', () => {
     it('should block excessive requests', async () => {
+      //Đăng ký user trước khi test
+      await request(app.getHttpServer()).post('auth/register').send({
+        name: 'Test User',
+        email: 'test@example.com',
+        password: 'Password123!',
+      });
       const requests = Array(11)
         .fill(null)
         .map(() =>
@@ -56,7 +62,7 @@ describe('Security Features (e2e)', () => {
         });
 
       expect(response.status).toBe(401);
-      expect(response.body.message).toBe('IP của bạn đã bị chặn');
+      expect(response.body.message).toBe('Tài khoản tạm thời bị khóa');
     });
   });
 

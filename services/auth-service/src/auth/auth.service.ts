@@ -16,7 +16,7 @@ import * as crypto from 'crypto';
 import { SessionService } from './services/session.service';
 import { LoginAttemptsService } from './services/login-attempts.service';
 import { TokenPayload } from './interfaces/token-payload.interface';
-import { ErrorCodes, ErrorMessages } from 'src/common/constants/error-code';
+import { ErrorCodes, ErrorMessages } from '../common/constants/error-code';
 import * as ms from 'ms';
 
 @Injectable()

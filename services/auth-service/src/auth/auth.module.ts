@@ -7,7 +7,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { User, UserSchema } from '../users/schemas/user.schema';
-import { UserModule } from 'src/users/users.module';
+import { UserModule } from '../users/users.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { EmailService } from '../email/email.service';
 import { LoginAttemptsService } from './services/login-attempts.service';
