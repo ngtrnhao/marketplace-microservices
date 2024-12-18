@@ -4,6 +4,7 @@ import * as request from 'supertest'; // Thư viện để test HTTP requests
 import { AppModule } from '../../src/app.module'; // Root module của ứng dụng
 import { ValidationFilter } from '../../src/common/filters/validation.filter';
 import { LoggerService } from '../../src/common/services/logger.service';
+import { ErrorCodes, ErrorMessages } from 'src/common/constants/error-code';
 
 // Test suite cho AuthController (end-to-end testing)
 describe('AuthController (e2e)', () => {
@@ -127,6 +128,43 @@ describe('AuthController (e2e)', () => {
           refreshToken: 'invalid.token',
         })
         .expect(401);
+    });
+  });
+
+  // Test suite cho JWT Authentication
+  describe('JWT Authentication (e2e)', () => {
+    let validToken: string;
+
+    beforeEach(async () => {
+      const loginRes = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({
+          email: 'test@example.com',
+          password: 'Password123!',
+        });
+      validToken = loginRes.body.accessToken;
+    });
+
+    it('should protect routes with valid JWT', () => {
+      return request(app.getHttpServer())
+        .get('/auth/profile')
+        .set('Authorization', `Bearer ${validToken}`)
+        .expect(200);
+    });
+
+    it('should reject expired tokens', async () => {
+      // Wait for token to expire
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      return request(app.getHttpServer())
+        .get('/auth/profile')
+        .set('Authorization', `Bearer ${validToken}`)
+        .expect(401)
+        .expect((res) => {
+          expect(res.body.message).toBe(
+            ErrorMessages[ErrorCodes.TOKEN_EXPIRED],
+          );
+        });
     });
   });
 

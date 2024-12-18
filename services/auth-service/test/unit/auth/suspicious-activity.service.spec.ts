@@ -2,7 +2,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { SuspiciousActivityService } from '../../../src/auth/services/suspicious-activity.service';
-import { AuditLog } from '../../../src/common/schemas/audit-log.schema';
+import { AuditLog } from '../../../src/auth/schemas/audit-log.schema';
 import { IpBlockingService } from '../../../src/auth/services/ip-blocking.service';
 import { Model } from 'mongoose';
 

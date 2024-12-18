@@ -14,7 +14,7 @@ import { LoginAttemptsService } from './services/login-attempts.service';
 import { SessionService } from './services/session.service';
 import { BlockedIP, BlockedIPSchema } from './schemas/blocked-ip.schema';
 import { Device, DeviceSchema } from './schemas/device.schema';
-import { AuditLog, AuditLogSchema } from '../common/schemas/audit-log.schema';
+import { AuditLog, AuditLogSchema } from './schemas/audit-log.schema';
 import { IpBlockingService } from './services/ip-blocking.service';
 import { DeviceTrackingService } from './services/device-tracking.service';
 import { SuspiciousActivityService } from './services/suspicious-activity.service';
@@ -26,9 +26,11 @@ import { SuspiciousActivityService } from './services/suspicious-activity.servic
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
+        secret: configService.get('JWT_SECRET'),
         signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRATION', '15m'),
+          expiresIn: configService.get('JWT_EXPIRES_IN'),
+          issuer: 'auth-service',
+          algorithm: 'HS256',
         },
       }),
       inject: [ConfigService],

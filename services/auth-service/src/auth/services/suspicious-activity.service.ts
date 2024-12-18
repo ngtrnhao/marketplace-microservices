@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { AuditLog } from '../../common/schemas/audit-log.schema';
+import { AuditLog } from '../schemas/audit-log.schema';
 import { IpBlockingService } from './ip-blocking.service';
 
 @Injectable()

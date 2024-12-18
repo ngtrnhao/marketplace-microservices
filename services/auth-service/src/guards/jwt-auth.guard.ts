@@ -5,52 +5,52 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ErrorCodes, ErrorMessages } from '../common/constants/error-code';
+import { SessionService } from '../auth/services/session.service';
+
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-  //Overide handlleRequest để tùy chỉnh xử lý lỗi
-  handleRequest(err: any, user: any, info: any) {
-    //Nếu có lỗi hoặc không tìm thấy user
+  constructor(private sessionService: SessionService) {
+    super();
+  }
+
+  handleRequest<TUser = any>(err: any, user: any, info: any): TUser {
     if (err || !user) {
       if (info?.name === 'TokenExpiredError') {
         throw new UnauthorizedException(
           ErrorMessages[ErrorCodes.TOKEN_EXPIRED],
         );
       }
-      if (info?.name === 'JsonWebTokenError') {
-        throw new UnauthorizedException(
-          ErrorMessages[ErrorCodes.TOKEN_INVALID],
-        );
-      }
       throw new UnauthorizedException(ErrorMessages[ErrorCodes.TOKEN_INVALID]);
     }
-    // Kiểm tra trạng thái active của user
-    if (!user.isActive) {
-      throw new UnauthorizedException('Tài khoản đã bị vô hiệu hóa');
-    }
 
-    // Kiểm tra xác thực email (nếu cần)
-    if (!user.isEmailVerified) {
-      throw new UnauthorizedException(
-        ErrorMessages[ErrorCodes.EMAIL_NOT_VERIFIED],
-      );
-    }
-
-    return user;
+    return user as TUser;
   }
 
-  // Override canActivate để thêm logic kiểm tra
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // Gọi canActivate của lớp cha
     const result = (await super.canActivate(context)) as boolean;
+    if (!result) {
+      return false;
+    }
 
-    // Lấy request từ context
     const request = context.switchToHttp().getRequest();
+    const user = request.user;
 
-    // Nếu có yêu cầu refresh token
     if (request.path === '/auth/refresh-token') {
       return true;
     }
 
-    return result;
+    // Validate session
+    if (user && user.sessionId) {
+      const isValidSession = await this.sessionService.validateSession(
+        user.sessionId,
+      );
+      if (!isValidSession) {
+        throw new UnauthorizedException(
+          ErrorMessages[ErrorCodes.SESSION_INVALID],
+        );
+      }
+    }
+
+    return true;
   }
 }
