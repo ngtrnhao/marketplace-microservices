@@ -56,13 +56,37 @@ export class User implements IUser {
 
   @Prop({ expires: '24h' })
   verificationTokenExpires: Date;
+
+  @Prop()
+  passwordResetToken: string;
+
+  @Prop()
+  passwordResetExpires: Date;
+
+  @Prop()
+  firstName: string;
+
+  @Prop()
+  lastName: string;
+
+  @Prop()
+  profilePicture: string;
+
+  @Prop()
+  googleId?: string;
+
+  @Prop()
+  googleToken?: string;
+
   @Prop()
   lastLoginAt: Date;
+
   //Phương thức so sánh mật khẩu
   async comparePassword(password: string): Promise<boolean> {
     return bcrypt.compare(password, this.password);
   }
 }
+
 export const UserSchema = SchemaFactory.createForClass(User);
 
 //Indexs

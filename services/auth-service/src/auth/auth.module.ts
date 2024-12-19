@@ -18,6 +18,8 @@ import { AuditLog, AuditLogSchema } from './schemas/audit-log.schema';
 import { IpBlockingService } from './services/ip-blocking.service';
 import { DeviceTrackingService } from './services/device-tracking.service';
 import { SuspiciousActivityService } from './services/suspicious-activity.service';
+import { GoogleAuthController } from './controllers/google-auth.controller';
+import { GoogleStrategy } from './strategies/google.strategy';
 
 @Module({
   imports: [
@@ -43,16 +45,16 @@ import { SuspiciousActivityService } from './services/suspicious-activity.servic
     ]),
     ThrottlerModule.forRoot([
       {
-        name: 'short',
         ttl: 60000,
         limit: 10,
       },
     ]),
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, GoogleAuthController],
   providers: [
     AuthService,
     JwtStrategy,
+    GoogleStrategy,
     EmailService,
     LoginAttemptsService,
     SessionService,
@@ -60,6 +62,6 @@ import { SuspiciousActivityService } from './services/suspicious-activity.servic
     DeviceTrackingService,
     SuspiciousActivityService,
   ],
-  exports: [AuthService],
+  exports: [AuthService, JwtStrategy, SessionService],
 })
 export class AuthModule {}

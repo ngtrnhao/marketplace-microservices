@@ -55,7 +55,7 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     // Kiểm tra tài khoản có bị khóa không
     if (await this.loginAttemptsService.isLocked(loginDto.email)) {
-      throw new UnauthorizedException('Tài khoản tạm thời bị khóa');
+      throw new UnauthorizedException('Tài khoản tạm thởi bị khóa');
     }
 
     try {
@@ -212,5 +212,58 @@ export class AuthService {
       }
       throw new UnauthorizedException(ErrorMessages[ErrorCodes.TOKEN_INVALID]);
     }
+  }
+
+  async googleLogin(user: any) {
+    if (!user) {
+      throw new UnauthorizedException('No user from Google');
+    }
+
+    let existingUser = await this.userModel.findOne({ email: user.email }).exec();
+
+    if (!existingUser) {
+      const createUserDto = {
+        email: user.email,
+        name: `${user.firstName} ${user.lastName}`.trim(), 
+        firstName: user.firstName,
+        lastName: user.lastName,
+        password: crypto.randomBytes(32).toString('hex'),
+        isEmailVerified: true,
+        profilePicture: user.picture,
+        googleId: user.id,
+        googleToken: user.accessToken
+      };
+
+      const newUser = await this.usersService.createUser(createUserDto);
+      existingUser = await this.userModel.findById(newUser._id).exec();
+      
+      if (!existingUser) {
+        throw new Error('Failed to create user');
+      }
+    }
+
+    const payload: TokenPayload = { 
+      sub: existingUser._id.toString(),
+      userId: existingUser._id.toString(),
+      email: existingUser.email,
+      role: existingUser.role || 'user',
+      type: 'access'
+    };
+    
+    const accessToken = await this.jwtService.signAsync(payload);
+    
+    // Tạo session mới
+    await this.sessionService.createSession(existingUser._id.toString());
+
+    return {
+      user: {
+        id: existingUser._id,
+        email: existingUser.email,
+        firstName: existingUser.firstName || '',
+        lastName: existingUser.lastName || '',
+        profilePicture: existingUser.profilePicture || ''
+      },
+      accessToken,
+    };
   }
 }

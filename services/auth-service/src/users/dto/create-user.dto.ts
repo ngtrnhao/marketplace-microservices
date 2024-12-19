@@ -56,4 +56,29 @@ export class CreateUserDto {
   @IsOptional()
   @IsDate()
   verificationTokenExpires?: Date;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  firstName?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  lastName?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  profilePicture?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  googleId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  googleToken?: string;
 }
