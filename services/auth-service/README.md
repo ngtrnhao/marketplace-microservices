@@ -6,42 +6,101 @@ A modern marketplace platform built with microservices architecture.
 
 ```bash
 marketplace-microservices/
-├── services/
-│   ├── auth-service/           # Authentication & User Management
-│   │   ├── src/
-│   │   │   ├── auth/
-│   │   │   ├── users/
-│   │   │   └── common/
-│   │   ├── test/
-│   │   │   ├── e2e/
-│   │   │   └── unit/
-│   │   ├── Dockerfile
-│   │   └── README.md
-│   ├── product-service/        # Product Management 
-│   │   ├── src/
-│   │   │   ├── products/
-│   │   │   └── categories/
-│   │   ├── test/
-│   │   └── README.md
-│   └── order-service/          # Order Processing
-│       ├── src/
-│       │   ├── orders/
-│       │   └── payments/
-│       ├── test/
-│       └── README.md
-├── api-gateway/                # API Gateway
-│   ├── src/
-│   │   ├── routes/
-│   │   └── middleware/
-│   └── README.md
-├── docker/                     # Docker Configurations
-│   ├── docker-compose.yml
-│   └── Dockerfile.*
-└── k8s/                       # Kubernetes Configurations
-    ├── deployments/
-    ├── services/
-    └── configmaps/
+└── services/
+    └── auth-service/              # Authentication & User Management Service
+        ├── src/                   # Source code
+        │   ├── auth/              # Authentication module
+        │   │   ├── controllers/   # Auth controllers
+        │   │   │   ├── auth.controller.ts
+        │   │   │   └── google-auth.controller.ts
+        │   │   ├── decorators/    # Custom decorators
+        │   │   │   └── roles.decorator.ts
+        │   │   ├── dto/          # Data Transfer Objects
+        │   │   │   ├── auth-credentials.dto.ts
+        │   │   │   ├── login.dto.ts
+        │   │   │   └── register.dto.ts
+        │   │   ├── interfaces/    # TypeScript interfaces
+        │   │   │   ├── jwt-payload.interface.ts
+        │   │   │   └── token.interface.ts
+        │   │   ├── schemas/      # MongoDB schemas
+        │   │   │   ├── audit-log.schema.ts
+        │   │   │   ├── blocked-ip.schema.ts
+        │   │   │   └── device.schema.ts
+        │   │   ├── services/     # Auth-related services
+        │   │   │   ├── session.service.ts
+        │   │   │   ├── ip-blocking.service.ts
+        │   │   │   ├── login-attempts.service.ts
+        │   │   │   ├── device-tracking.service.ts
+        │   │   │   └── suspicious-activity.service.ts
+        │   │   ├── strategies/   # Passport strategies
+        │   │   │   ├── google.strategy.ts
+        │   │   │   └── jwt.strategy.ts
+        │   │   ├── types/       # Type definitions
+        │   │   │   └── role.enum.ts
+        │   │   ├── utils/       # Utility functions
+        │   │   │   └── auth.utils.ts
+        │   │   ├── auth.controller.ts
+        │   │   ├── auth.module.ts
+        │   │   └── auth.service.ts
+        │   │
+        │   ├── users/           # Users module
+        │   │   ├── dto/         # User DTOs
+        │   │   │   ├── create-user.dto.ts
+        │   │   │   └── update-user.dto.ts
+        │   │   ├── schemas/     # User-related schemas
+        │   │   │   └── user.schema.ts
+        │   │   ├── users.controller.ts
+        │   │   ├── users.module.ts
+        │   │   └── users.service.ts
+        │   │
+        │   ├── common/          # Shared resources
+        │   │   ├── decorators/  # Common decorators
+        │   │   ├── filters/     # Exception filters
+        │   │   │   └── http-exception.filter.ts
+        │   │   └── interceptors/# Request interceptors
+        │   │       └── logging.interceptor.ts
+        │   │
+        │   ├── config/         # Configuration
+        │   │   ├── configuration.ts
+        │   │   └── validation.ts
+        │   │
+        │   ├── email/          # Email module
+        │   │   ├── email.module.ts
+        │   │   └── email.service.ts
+        │   │
+        │   ├── guards/         # Auth guards
+        │   │   └── jwt-auth.guard.ts
+        │   │
+        │   ├── rate-limit/     # Rate limiting
+        │   │   ├── rate-limit.module.ts
+        │   │   └── rate-limit.service.ts
+        │   │
+        │   ├── app.controller.ts
+        │   ├── app.module.ts
+        │   ├── app.service.ts
+        │   └── main.ts
+        │
+        ├── test/              # Test files
+        │   ├── e2e/          # End-to-end tests
+        │   │   └── auth.e2e-spec.ts
+        │   └── unit/         # Unit tests
+        │       └── auth.service.spec.ts
+        │
+        ├── .dockerignore     # Docker ignore file
+        ├── .env              # Environment variables
+        ├── .env.example      # Environment variables example
+        ├── .eslintrc.js     # ESLint configuration
+        ├── .gitignore       # Git ignore file
+        ├── .prettierrc      # Prettier configuration
+        ├── Dockerfile       # Docker configuration
+        ├── jest.config.js   # Jest configuration
+        ├── nest-cli.json    # NestJS CLI configuration
+        ├── package.json     # Project dependencies
+        ├── tsconfig.json    # TypeScript configuration
+        └── tsconfig.build.json # TypeScript build configuration
+
 ```
+
 ## Services
 
 ### Core Services
@@ -313,3 +372,149 @@ Closes #123
 3. Regular security audits
 4. Dependency version control
 5. Access control verification
+
+# Auth Service
+
+## Description
+Authentication and User Management service for the Marketplace Microservices Platform. Handles user authentication, authorization, and session management.
+
+## Features
+
+- User Authentication
+  - Local authentication with email/password
+  - Google OAuth 2.0 integration
+  - JWT-based authentication
+
+- Session Management
+  - Redis-based session storage
+  - Secure session handling
+  - Session expiration and renewal
+
+- Security Features
+  - IP blocking for suspicious activities
+  - Failed login attempts tracking
+  - Device tracking
+  - Audit logging
+
+- User Management
+  - User registration
+  - Profile management
+  - Password reset
+  - Email verification
+
+## Tech Stack
+
+- NestJS
+- MongoDB (User data)
+- Redis (Session management)
+- Passport.js
+- JWT
+- Google OAuth 2.0
+
+## Prerequisites
+
+- Node.js (v18+)
+- MongoDB
+- Redis
+- Google OAuth credentials
+
+## Configuration
+
+Create a `.env` file in the root directory with the following variables:
+
+```env
+# Application
+PORT=3001
+NODE_ENV=development
+
+# MongoDB
+MONGODB_URI=mongodb://localhost:27017/auth-service
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+REDIS_DB=0
+
+# JWT
+JWT_SECRET=your-jwt-secret
+JWT_EXPIRES_IN=1d
+
+# Google OAuth
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_CALLBACK_URL=http://localhost:3001/api/auth/google/callback
+```
+
+## Installation
+
+```bash
+# Install dependencies
+npm install
+
+# Development
+npm run start:dev
+
+# Production build
+npm run build
+npm run start:prod
+```
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login with email/password
+- `GET /api/auth/google` - Initiate Google OAuth login
+- `GET /api/auth/google/callback` - Google OAuth callback
+- `POST /api/auth/logout` - Logout user
+- `GET /api/auth/profile` - Get user profile
+- `PUT /api/auth/profile` - Update user profile
+
+### Session Management
+- `GET /api/auth/session` - Get current session info
+- `POST /api/auth/session/renew` - Renew session
+- `DELETE /api/auth/session` - Invalidate session
+
+## Security
+
+The service implements several security measures:
+- Rate limiting
+- IP blocking
+- Session management
+- Audit logging
+- Device tracking
+- Suspicious activity detection
+
+## Testing
+
+```bash
+# Unit tests
+npm run test
+
+# e2e tests
+npm run test:e2e
+
+# Test coverage
+npm run test:cov
+```
+
+## Docker
+
+Build and run with Docker:
+
+```bash
+# Build image
+docker build -t auth-service .
+
+# Run container
+docker run -p 3001:3001 auth-service
+```
+
+## Contributing
+
+Please read our contributing guidelines before submitting pull requests.
+
+## License
+
+This project is licensed under the MIT License.
