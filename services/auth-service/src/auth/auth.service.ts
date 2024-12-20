@@ -2,6 +2,7 @@ import {
   Injectable,
   UnauthorizedException,
   BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -265,5 +266,50 @@ export class AuthService {
       },
       accessToken,
     };
+  }
+
+  async socialLogin(profile: any): Promise<any> {
+    try {
+      // Tìm user dựa trên provider và providerId
+      let user = await this.userModel.findOne({
+        $or: [
+          { email: profile.email },
+          { providerId: profile.providerId, provider: profile.provider }
+        ]
+      });
+
+      if (!user) {
+        // Tạo mật khẩu ngẫu nhiên cho user mới
+        const randomPassword = Math.random().toString(36).slice(-8);
+        const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+        // Tạo user mới
+        user = await this.userModel.create({
+          email: profile.email,
+          name: profile.name,
+          password: hashedPassword,
+          avatar: profile.picture,
+          provider: profile.provider,
+          providerId: profile.providerId,
+          isActive: true
+        });
+      }
+
+      // Tạo JWT token
+      const payload = {
+        sub: user._id,
+        email: user.email,
+        role: user.role
+      };
+
+      const accessToken = await this.jwtService.signAsync(payload);
+
+      return {
+        user,
+        accessToken
+      };
+    } catch (error) {
+      throw new InternalServerErrorException('Error during social login');
+    }
   }
 }

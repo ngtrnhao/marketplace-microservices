@@ -20,6 +20,8 @@ import { DeviceTrackingService } from './services/device-tracking.service';
 import { SuspiciousActivityService } from './services/suspicious-activity.service';
 import { GoogleAuthController } from './controllers/google-auth.controller';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { FacebookStrategy } from './strategies/facebook.strategy';
+import { FacebookAuthController } from './controllers/facebook-auth.controller';
 
 @Module({
   imports: [
@@ -50,11 +52,12 @@ import { GoogleStrategy } from './strategies/google.strategy';
       },
     ]),
   ],
-  controllers: [AuthController, GoogleAuthController],
+  controllers: [AuthController, GoogleAuthController, FacebookAuthController],
   providers: [
     AuthService,
     JwtStrategy,
     GoogleStrategy,
+    FacebookStrategy,
     EmailService,
     LoginAttemptsService,
     SessionService,

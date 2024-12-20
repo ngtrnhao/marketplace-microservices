@@ -81,6 +81,12 @@ export class User implements IUser {
   @Prop()
   lastLoginAt: Date;
 
+  @Prop()
+  provider?: string;
+
+  @Prop()
+  providerId?: string;
+
   //Phương thức so sánh mật khẩu
   async comparePassword(password: string): Promise<boolean> {
     return bcrypt.compare(password, this.password);
